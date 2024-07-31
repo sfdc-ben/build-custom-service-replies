@@ -2,7 +2,7 @@
 <LightningComponentBundle xmlns="http://soap.sforce.com/2006/04/metadata">
     <apiVersion>61.0</apiVersion>
     <isExposed>true</isExposed>
-    <masterLabel>Custome Messaging Replies</masterLabel>
+    <masterLabel>Custom Messaging Replies</masterLabel>
     <targets>
         <target>lightning__RecordPage</target>
     </targets>
@@ -11,6 +11,16 @@
         <objects>
             <object>MessagingSession</object>
         </objects>
+        <property name="contextPromptId" label="Context Prompt Template Id" type="String" />
+        <property name="knowledgePromptId" label="Knowledge Prompt Template Id" type="String" />
+        <property name="summaryPromptId" label="Summary Prompt Template Id" type="String" />
+        <property name="refinementPromptId" label="Refinement Prompt Template Id" type="String" />
+        <property name="useCase1PromptName" label="Use Case Prompt 1 - Name" type="String" />
+        <property name="useCase1PromptId" label="Use Case Prompt 1 - Template Id" type="String" />
+        <property name="useCase2PromptName" label="Use Case Prompt 2 - Name" type="String" />
+        <property name="useCase2PromptId" label="Use Case Prompt 2 - Template Id" type="String" />
+        <property name="useCase3PromptName" label="Use Case Prompt 3 - Name" type="String" />
+        <property name="useCase3PromptId" label="Use Case Prompt 3 - Template Id" type="String" />
     </targetConfig>
 </targetConfigs>
 </LightningComponentBundle>

@@ -8,14 +8,10 @@
 			<div class="slds-media__body">
 				<span class="slds-text-heading_small"><b>Einstein Service Replies</b></span>
 			</div>
-			<!-- <div class="slds-media__figure slds-media__figure_reverse">
-				<lightning-button-icon icon-name="utility:refresh" alternative-text="Refresh" title="Refresh" onclick={handleRefresh}></lightning-button-icon>
-			</div> -->
 		</div>
 		<div class="slds-var-p-vertical_medium slds-is-relative">
 			<h3 class="slds-text-title_caps slds-var-p-horizontal_medium">Unanswered Messages</h3>
 			<template if:true={isEmpty}>
-				<!-- <lightning-spinner alternative-text="Loading"></lightning-spinner> -->
 				<div class="slds-var-p-horizontal_medium slds-var-p-top_x-small slds-text-title">Waiting for a message</div>
 			</template>
 			<template if:false={isEmpty}>
@@ -88,7 +84,9 @@
 					<lightning-button-group class="slds-var-m-vertical_x-small">
 						<lightning-button label="Send" onclick={handleSendReply}></lightning-button>
 						<lightning-button label="Edit" onclick={handleSetInput}></lightning-button>
-						<lightning-button icon-name="utility:einstein" label="Refine" onclick={handleShowRefine}></lightning-button>
+						<template if:true={refinementPromptId}>
+							<lightning-button icon-name="utility:einstein" label="Refine" onclick={handleShowRefine}></lightning-button>
+						</template>
 					</lightning-button-group>
 					<template if:true={showRefine}
 						><p class="slds-text-title slds-var-m-bottom_xx-small">Prompt Refinement</p>
@@ -105,25 +103,65 @@
 			<lightning-tabset>
 				<lightning-tab label="General Replies">
 					<div class="slds-grid slds-grid_vertical">
-						<div class="slds-col">
-							<lightning-button disabled={isEmpty} variant="brand" stretch label="Generate Context Reply" onclick={handleGenerateReply} value="Context"></lightning-button>
-						</div>
-						<div class="slds-col slds-var-p-vertical_x-small">
-							<lightning-button disabled={isEmpty} stretch variant="brand" label="Generate Knowledge Reply" onclick={handleGenerateReply} value="Knowledge"></lightning-button>
-						</div>
-
-						<div class="slds-col">
-							<lightning-button stretch variant="brand" label="Generate Summary Reply" onclick={handleGenerateReply} value="Summary"></lightning-button>
-						</div>
+						<template if:true={contextPromptId}>
+							<div class="slds-col slds-var-p-bottom_x-small">
+								<lightning-button disabled={isEmpty} variant="brand" stretch label="Generate Context Reply" onclick={handleGenerateReply} value="Context"></lightning-button>
+							</div>
+						</template>
+						<template if:true={knowledgePromptId}>
+							<div class="slds-col slds-var-p-bottom_x-small">
+								<lightning-button disabled={isEmpty} stretch variant="brand" label="Generate Knowledge Reply" onclick={handleGenerateReply} value="Knowledge"></lightning-button>
+							</div>
+						</template>
+						<template if:true={summaryPromptId}>
+							<div class="slds-col slds-var-p-bottom_x-small">
+								<lightning-button stretch variant="brand" label="Generate Summary Reply" onclick={handleGenerateReply} value="Summary"></lightning-button>
+							</div>
+						</template>
 					</div>
 				</lightning-tab>
-				<lightning-tab label="Use Case Replies">
-					<div class="slds-grid slds-grid_vertical">
-						<div class="slds-col">
-							<lightning-button disabled={isEmpty} variant="brand" stretch label="Generate WISMO Reply" onclick={handleGenerateReply} value="Orders"></lightning-button>
+				<template if:true={usecasePrompts}>
+					<lightning-tab label="Use Case Replies">
+						<div class="slds-grid slds-grid_vertical">
+							<template if:true={usecase1Prompt}>
+								<div class="slds-col slds-var-p-bottom_x-small">
+									<lightning-button
+										disabled={isEmpty}
+										variant="brand"
+										stretch
+										label={usecase1Prompt.label}
+										onclick={handleGenerateReply}
+										value={usecase1Prompt.key}
+									></lightning-button>
+								</div>
+							</template>
+							<template if:true={usecase2Prompt}>
+								<div class="slds-col slds-var-p-bottom_x-small">
+									<lightning-button
+										disabled={isEmpty}
+										variant="brand"
+										stretch
+										label={usecase2Prompt.label}
+										onclick={handleGenerateReply}
+										value={usecase2Prompt.key}
+									></lightning-button>
+								</div>
+							</template>
+							<template if:true={usecase3Prompt}>
+								<div class="slds-col slds-var-p-bottom_x-small">
+									<lightning-button
+										disabled={isEmpty}
+										variant="brand"
+										stretch
+										label={usecase3Prompt.label}
+										onclick={handleGenerateReply}
+										value={usecase3Prompt.key}
+									></lightning-button>
+								</div>
+							</template>
 						</div>
-					</div>
-				</lightning-tab>
+					</lightning-tab>
+				</template>
 			</lightning-tabset>
 		</div>
 	</div>

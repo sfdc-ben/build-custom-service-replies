@@ -23,6 +23,16 @@ export default class CustomMessagingReplies extends LightningElement {
 	}
 
 	@api recordId
+	@api contextPromptId
+	@api knowledgePromptId
+	@api summaryPromptId
+	@api refinementPromptId
+	@api useCase1PromptName
+	@api useCase1PromptId
+	@api useCase2PromptName
+	@api useCase2PromptId
+	@api useCase3PromptName
+	@api useCase3PromptId
 
 	@wire(MessageContext) messageContext
 	@wire(MessageContext) messageContextAgent
@@ -38,6 +48,43 @@ export default class CustomMessagingReplies extends LightningElement {
 
 	get genReply() {
 		return this.generatedReply.response.length === 0
+	}
+
+	get usecasePrompts() {
+		return this.usecase1Prompt || this.usecase2Prompt || this.usecase3Prompt
+	}
+
+	get usecase1Prompt() {
+		if (this.useCase1PromptId && this.useCase1PromptName) {
+			return {
+				label: `Generate ${this.useCase1PromptName} Reply`,
+				key: this.useCase1PromptName,
+				id: `${this.useCase1PromptId}`
+			}
+		}
+		return false
+	}
+
+	get usecase2Prompt() {
+		if (this.useCase2PromptId && this.useCase2PromptName) {
+			return {
+				label: `Generate ${this.useCase2PromptName} Reply`,
+				key: this.useCase2PromptName,
+				id: `${this.useCase2PromptId}`
+			}
+		}
+		return false
+	}
+
+	get usecase3Prompt() {
+		if (this.useCase3PromptId && this.useCase3PromptName) {
+			return {
+				label: `Generate ${this.useCase3PromptName} Reply`,
+				key: this.useCase3PromptName,
+				id: `${this.useCase3PromptId}`
+			}
+		}
+		return false
 	}
 
 	// LIFECYCLE FUNCTIONS
@@ -68,51 +115,29 @@ export default class CustomMessagingReplies extends LightningElement {
 		let inputsJSON
 		let source = event.target.value
 		let start = Date.now()
+		templateInputs = [
+			{ input: 'Messaging_Session', isObject: true, value: this.recordId },
+			{ input: 'Content', isObject: false, value: this.unifyAnsweredMessages() }
+		]
+		inputsJSON = JSON.stringify(templateInputs)
 		switch (source) {
 			case 'Context':
-				templateInputs = [
-					{ input: 'Messaging_Session', isObject: true, value: this.recordId },
-					{ input: 'Content', isObject: false, value: this.unifyAnsweredMessages() }
-				]
-				inputsJSON = JSON.stringify(templateInputs)
-				this.generating = true
-				resolvePrompt({ templateId: '0hfa50000015HSfAAM', templateInputsJSON: inputsJSON })
-					.then((data) => {
-						let end = Date.now()
-						this.generatedReply = {
-							prompt: data.prompt,
-							response: data.response,
-							source: source,
-							time: (((end - start) % 60000) / 1000).toFixed(2)
-						}
-						this.generating = false
-					})
-					.catch((error) => {
-						console.log('error', error)
-					})
-
+				this.resolveReplyPrompt(this.contextPromptId, inputsJSON, source, start)
 				break
 			case 'Summary':
-				templateInputs = [
-					{ input: 'Messaging_Session', isObject: true, value: this.recordId },
-					{ input: 'Content', isObject: false, value: this.unifyAnsweredMessages() }
-				]
-				inputsJSON = JSON.stringify(templateInputs)
-				this.generating = true
-				resolvePrompt({ templateId: '0hfa5000001QSCzAAO', templateInputsJSON: inputsJSON })
-					.then((data) => {
-						let end = Date.now()
-						this.generatedReply = {
-							prompt: data.prompt,
-							response: data.response,
-							source: source,
-							time: (((end - start) % 60000) / 1000).toFixed(2)
-						}
-						this.generating = false
-					})
-					.catch((error) => {
-						console.log('error', error)
-					})
+				this.resolveReplyPrompt(this.summaryPromptId, inputsJSON, source, start)
+				break
+			case 'Knowledge':
+				this.resolveReplyPrompt(this.knowledgePromptId, inputsJSON, source, start)
+				break
+			case this.usecase1Prompt.key:
+				this.resolveReplyPrompt(this.usecase1Prompt.id, inputsJSON, source, start)
+				break
+			case this.usecase2Prompt.key:
+				this.resolveReplyPrompt(this.usecase2Prompt.id, inputsJSON, source, start)
+				break
+			case this.usecase3Prompt.key:
+				this.resolveReplyPrompt(this.usecase3Prompt.id, inputsJSON, source, start)
 				break
 			default:
 				console.log('Nothing selected')
@@ -139,7 +164,7 @@ export default class CustomMessagingReplies extends LightningElement {
 		inputsJSON = JSON.stringify(templateInputs)
 		this.generating = true
 		let start = Date.now()
-		resolvePrompt({ templateId: '0hfa5000001EcEXAA0', templateInputsJSON: inputsJSON })
+		resolvePrompt({ templateId: this.refinementPromptId, templateInputsJSON: inputsJSON })
 			.then((data) => {
 				let end = Date.now()
 				this.generatedReply.response = data.response
@@ -227,5 +252,23 @@ export default class CustomMessagingReplies extends LightningElement {
 			}
 		}
 		return result
+	}
+
+	resolveReplyPrompt(template, input, source, start) {
+		this.generating = true
+		resolvePrompt({ templateId: template, templateInputsJSON: input })
+			.then((data) => {
+				let end = Date.now()
+				this.generatedReply = {
+					prompt: data.prompt,
+					response: data.response,
+					source: source,
+					time: (((end - start) % 60000) / 1000).toFixed(2)
+				}
+				this.generating = false
+			})
+			.catch((error) => {
+				console.log('error', error)
+			})
 	}
 }
